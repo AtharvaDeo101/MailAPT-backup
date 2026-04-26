@@ -75,7 +75,7 @@ def generate_with_api(prompt: str) -> str:
         },
         {"role": "user", "content": f"Write a professional email about: {prompt}"},
     ]
-    response = hf_client.chat_completion(
+    response = hf_client.chat.completions.create(
         model=HF_MODEL,
         messages=messages,
         max_tokens=400,
