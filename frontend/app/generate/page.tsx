@@ -424,70 +424,8 @@ function GmailEmailDetailModal({ isOpen, onClose, email, isLoading }: GmailEmail
 function EmptyState({ icon, message }: { icon: React.ReactNode; message: string }) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 py-8 px-4 text-center">
-      <div className="text-muted-foreground/40">{icon}</div>
-      <p className="text-xs text-muted-foreground">{message}</p>
-    </div>
-  );
-}
-
-/** Reusable collapsible section header */
-function SectionHeader({
-  title,
-  count,
-  countLabel = "emails",
-  icon,
-  isOpen,
-  isLoading,
-  onToggle,
-  onRefresh,
-}: {
-  title: string;
-  count: number;
-  countLabel?: string;
-  icon: React.ReactNode;
-  isOpen: boolean;
-  isLoading?: boolean;
-  onToggle: () => void;
-  onRefresh?: () => void;
-}) {
-  return (
-    <div
-      className="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-accent/50 transition-colors select-none"
-      onClick={onToggle}
-      role="button"
-      aria-expanded={isOpen}
-      aria-label={`Toggle ${title} section`}
-    >
-      <div className="flex items-center gap-2">
-        {isOpen ? (
-          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-        ) : (
-          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-        )}
-        <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-          {icon}
-          {title}
-        </span>
-      </div>
-      <div className="flex items-center gap-1.5">
-        <span className="text-xs text-muted-foreground">
-          {count} {countLabel}
-        </span>
-        {onRefresh && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-5 w-5 text-muted-foreground hover:text-foreground"
-            onClick={(e) => {
-              e.stopPropagation();
-              onRefresh();
-            }}
-            aria-label={`Refresh ${title}`}
-          >
-            <RefreshCw className={cn("h-3 w-3", isLoading && "animate-spin")} />
-          </Button>
-        )}
-      </div>
+      <div className="opacity-30">{icon}</div>
+      <p className="text-xs tracking-widest uppercase text-muted-foreground/60">{message}</p>
     </div>
   );
 }
@@ -502,18 +440,18 @@ function GmailEmailItem({
 }) {
   return (
     <div
-      className="group mx-2 mb-1 rounded-lg px-3 py-2.5 cursor-pointer hover:bg-accent transition-colors"
+      className="group px-5 py-3 cursor-pointer border-b border-border/20 hover:bg-foreground/5 transition-colors"
       onClick={() => onOpen(email.id)}
     >
-      <p className="text-xs font-medium truncate text-foreground">
+      <p className="text-xs font-medium truncate tracking-tight leading-snug text-foreground">
         {email.subject || "(No Subject)"}
       </p>
-      <p className="text-xs text-muted-foreground truncate mt-0.5">
+      <p className="text-xs text-muted-foreground/60 truncate mt-0.5 tracking-wide">
         {email.from || "—"}
       </p>
       <div className="flex items-center gap-1 mt-1.5">
-        <Clock className="h-2.5 w-2.5 text-muted-foreground/60" />
-        <span className="text-xs text-muted-foreground/60">
+        <Clock className="h-2.5 w-2.5 text-muted-foreground/40" />
+        <span className="text-xs text-muted-foreground/40 tracking-wide">
           {formatTime(email.date)}
         </span>
       </div>
@@ -548,57 +486,64 @@ function EmailSidebar({
   onRefreshSent,
   onOpenGmailEmail,
 }: EmailSidebarProps) {
-  const [draftsOpen, setDraftsOpen] = useState(true);
-  const [inboxOpen, setInboxOpen] = useState(true);
+  const [draftsOpen, setDraftsOpen] = useState(false);
+  const [inboxOpen, setInboxOpen] = useState(false);
   const [sentOpen, setSentOpen] = useState(false);
 
-  return (
-    <aside
-      className="w-64 shrink-0 flex flex-col border-r border-border bg-card/50 h-full overflow-y-auto"
-      aria-label="Email navigation"
-    >
-      {/* ── Drafts ──────────────────────────────────── */}
-      <SectionHeader
-        title="Drafts"
-        count={drafts.length}
-        countLabel="saved"
-        icon={<Mail className="h-3.5 w-3.5" />}
-        isOpen={draftsOpen}
-        onToggle={() => setDraftsOpen((v) => !v)}
-      />
+  const [draftsHovered, setDraftsHovered] = useState(false);
+  const [inboxHovered, setInboxHovered] = useState(false);
+  const [sentHovered, setSentHovered] = useState(false);
 
-      {draftsOpen && (
+  const navItems = [
+    {
+      number: "01",
+      label: "Drafts",
+      icon: <Mail className="h-3.5 w-3.5" />,
+      isOpen: draftsOpen,
+      isHovered: draftsHovered,
+      setHovered: setDraftsHovered,
+      onToggle: () => {
+        setDraftsOpen((v) => !v);
+        setInboxOpen(false);
+        setSentOpen(false);
+      },
+      count: drafts.length,
+      countLabel: "saved",
+      isLoading: false,
+      onRefresh: undefined as (() => void) | undefined,
+      content: (
         <div className="pb-2">
           {drafts.length === 0 ? (
             <EmptyState
               icon={<MailOpen className="h-7 w-7" />}
-              message="No drafts yet."
+              message="No drafts yet"
             />
           ) : (
             drafts.map((draft) => (
               <div
                 key={draft.id}
                 className={cn(
-                  "group relative mx-2 mb-1 rounded-lg px-3 py-2.5 cursor-pointer transition-colors",
+                  "group relative px-5 py-3 cursor-pointer border-b border-border/20 transition-colors",
                   activeDraftId === draft.id
-                    ? "bg-primary/10 text-primary"
-                    : "hover:bg-accent text-foreground"
+                    ? "bg-foreground/10"
+                    : "hover:bg-foreground/5"
                 )}
                 onClick={() => onSelectDraft(draft)}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium truncate">
+                    <p className="text-xs font-medium truncate tracking-tight leading-snug"
+                       style={{ letterSpacing: "-0.01em" }}>
                       {draft.subject || "Untitled"}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">
+                    <p className="text-xs text-muted-foreground/60 truncate mt-0.5 tracking-wide">
                       {draft.recipientEmail || "No recipient"}
                     </p>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                    className="h-5 w-5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground/50 hover:text-destructive"
                     onClick={(e) => {
                       e.stopPropagation();
                       onDeleteDraft(draft.id);
@@ -609,8 +554,8 @@ function EmailSidebar({
                   </Button>
                 </div>
                 <div className="flex items-center gap-1 mt-1.5">
-                  <Clock className="h-2.5 w-2.5 text-muted-foreground/60" />
-                  <span className="text-xs text-muted-foreground/60">
+                  <Clock className="h-2.5 w-2.5 text-muted-foreground/40" />
+                  <span className="text-xs text-muted-foreground/40 tracking-wide">
                     {formatTime(draft.createdAt)}
                   </span>
                 </div>
@@ -618,32 +563,34 @@ function EmailSidebar({
             ))
           )}
         </div>
-      )}
-
-      {/* Divider */}
-      <div className="mx-4 border-t border-border/50" />
-
-      {/* ── Inbox ───────────────────────────────────── */}
-      <SectionHeader
-        title="Inbox"
-        count={inboxEmails.length}
-        icon={<Inbox className="h-3.5 w-3.5" />}
-        isOpen={inboxOpen}
-        isLoading={inboxLoading}
-        onToggle={() => setInboxOpen((v) => !v)}
-        onRefresh={onRefreshInbox}
-      />
-
-      {inboxOpen && (
+      ),
+    },
+    {
+      number: "02",
+      label: "Inbox",
+      icon: <Inbox className="h-3.5 w-3.5" />,
+      isOpen: inboxOpen,
+      isHovered: inboxHovered,
+      setHovered: setInboxHovered,
+      onToggle: () => {
+        setInboxOpen((v) => !v);
+        setDraftsOpen(false);
+        setSentOpen(false);
+      },
+      count: inboxEmails.length,
+      countLabel: "emails",
+      isLoading: inboxLoading,
+      onRefresh: onRefreshInbox,
+      content: (
         <div className="pb-2">
           {inboxLoading ? (
             <div className="flex items-center justify-center py-6">
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground/50" />
             </div>
           ) : inboxEmails.length === 0 ? (
             <EmptyState
               icon={<Inbox className="h-7 w-7" />}
-              message="No inbox emails found."
+              message="No inbox emails found"
             />
           ) : (
             inboxEmails.map((email) => (
@@ -651,32 +598,34 @@ function EmailSidebar({
             ))
           )}
         </div>
-      )}
-
-      {/* Divider */}
-      <div className="mx-4 border-t border-border/50" />
-
-      {/* ── Sent ────────────────────────────────────── */}
-      <SectionHeader
-        title="Sent"
-        count={sentEmails.length}
-        icon={<SendHorizonal className="h-3.5 w-3.5" />}
-        isOpen={sentOpen}
-        isLoading={sentLoading}
-        onToggle={() => setSentOpen((v) => !v)}
-        onRefresh={onRefreshSent}
-      />
-
-      {sentOpen && (
+      ),
+    },
+    {
+      number: "03",
+      label: "Sent",
+      icon: <SendHorizonal className="h-3.5 w-3.5" />,
+      isOpen: sentOpen,
+      isHovered: sentHovered,
+      setHovered: setSentHovered,
+      onToggle: () => {
+        setSentOpen((v) => !v);
+        setDraftsOpen(false);
+        setInboxOpen(false);
+      },
+      count: sentEmails.length,
+      countLabel: "emails",
+      isLoading: sentLoading,
+      onRefresh: onRefreshSent,
+      content: (
         <div className="pb-2">
           {sentLoading ? (
             <div className="flex items-center justify-center py-6">
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground/50" />
             </div>
           ) : sentEmails.length === 0 ? (
             <EmptyState
               icon={<SendHorizonal className="h-7 w-7" />}
-              message="No sent emails found."
+              message="No sent emails found"
             />
           ) : (
             sentEmails.map((email) => (
@@ -684,7 +633,142 @@ function EmailSidebar({
             ))
           )}
         </div>
-      )}
+      ),
+    },
+  ];
+
+  return (
+    <aside
+      className="w-64 shrink-0 flex flex-col border-r border-border bg-card/50 h-full overflow-y-auto"
+      aria-label="Email navigation"
+    >
+      {/* ── Header label ── */}
+      <div className="px-5 pt-6 pb-4 border-b border-border/30">
+        <span
+          className="text-xs tracking-[0.2em] uppercase text-muted-foreground/50 font-medium select-none"
+          style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+        >
+          Mail
+        </span>
+      </div>
+
+      {/* ── Nav items ── */}
+      <nav className="flex flex-col flex-1">
+        {navItems.map((item) => (
+          <div key={item.number} className="flex flex-col">
+
+            {/* Nav Row */}
+            <div
+              role="button"
+              aria-expanded={item.isOpen}
+              aria-label={`Toggle ${item.label}`}
+              onClick={item.onToggle}
+              onMouseEnter={() => item.setHovered(true)}
+              onMouseLeave={() => item.setHovered(false)}
+              className={cn(
+                "group relative flex items-center gap-3 px-5 py-5 cursor-pointer select-none transition-all duration-200 border-b border-border/20",
+                item.isOpen ? "bg-foreground/5" : "hover:bg-foreground/[0.03]"
+              )}
+            >
+              {/* Number */}
+              <span
+                className="text-xs text-muted-foreground/35 shrink-0 font-medium tabular-nums transition-colors duration-200 group-hover:text-muted-foreground/60"
+                style={{ fontFamily: "'Playfair Display', Georgia, serif", minWidth: "1.5rem" }}
+              >
+                {item.number}
+              </span>
+
+              {/* Label — big, fancy, italic on hover */}
+              <div className="flex-1 min-w-0 relative">
+                <span
+                  className="block transition-all duration-300 ease-in-out"
+                  style={{
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontWeight: 600,
+                    fontSize: item.isHovered || item.isOpen ? "1.25rem" : "1.05rem",
+                    fontStyle: item.isHovered || item.isOpen ? "italic" : "normal",
+                    letterSpacing: item.isHovered ? "-0.03em" : "-0.01em",
+                    color: item.isOpen
+                      ? "hsl(var(--foreground))"
+                      : item.isHovered
+                      ? "hsl(var(--foreground))"
+                      : "hsl(var(--foreground) / 0.65)",
+                    lineHeight: 1.1,
+                    transition:
+                      "font-size 0.25s ease, font-style 0.2s ease, letter-spacing 0.25s ease, color 0.2s ease",
+                  }}
+                >
+                  {item.label}
+                </span>
+
+                {/* Underline — grows on active/hover */}
+                <span
+                  className="block h-px bg-foreground/70 mt-1 origin-left transition-transform duration-300"
+                  style={{
+                    transform:
+                      item.isOpen || item.isHovered ? "scaleX(1)" : "scaleX(0)",
+                    opacity: item.isOpen ? 1 : 0.5,
+                  }}
+                  aria-hidden="true"
+                />
+              </div>
+
+              {/* Right side: count + refresh + chevron */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {item.count > 0 && (
+                  <span className="text-xs text-muted-foreground/40 tabular-nums">
+                    {item.count}
+                  </span>
+                )}
+                {item.onRefresh && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-5 text-muted-foreground/40 hover:text-foreground"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      item.onRefresh!();
+                    }}
+                    aria-label={`Refresh ${item.label}`}
+                  >
+                    <RefreshCw
+                      className={cn("h-2.5 w-2.5", item.isLoading && "animate-spin")}
+                    />
+                  </Button>
+                )}
+                <ChevronDown
+                  className={cn(
+                    "h-3 w-3 text-muted-foreground/40 transition-transform duration-300",
+                    item.isOpen ? "rotate-180" : "rotate-0"
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* ── Dropdown panel ── */}
+            <div
+              className={cn(
+                "overflow-hidden transition-all duration-300 ease-in-out border-b border-border/20",
+                item.isOpen ? "max-h-[420px] opacity-100" : "max-h-0 opacity-0"
+              )}
+            >
+              <div className="bg-background/60 backdrop-blur-sm">
+                {item.content}
+              </div>
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* ── Footer ── */}
+      <div className="px-5 py-5 mt-auto border-t border-border/30">
+        <p
+          className="text-xs tracking-[0.15em] uppercase text-muted-foreground/30 select-none italic"
+          style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+        >
+          AI Mail
+        </p>
+      </div>
     </aside>
   );
 }
