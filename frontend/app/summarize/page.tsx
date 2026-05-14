@@ -275,6 +275,107 @@ function SummaryCard({ summary, onCopy, copied }: SummaryCardProps) {
   );
 }
 
+
+/** Styled email card for the Inbox list */
+function EmailCard({
+  email,
+  isSelected,
+  onSelect,
+}: {
+  email: GmailEmail;
+  isSelected: boolean;
+  onSelect: (email: GmailEmail) => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      className="mx-3 my-1.5 rounded-xl cursor-pointer overflow-hidden transition-all duration-300"
+      style={{
+        background: isSelected
+          ? "linear-gradient(135deg, hsl(var(--primary) / 0.12) 0%, hsl(var(--accent)) 100%)"
+          : hovered
+          ? "linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--accent)) 100%)"
+          : "hsl(var(--card))",
+        border: isSelected
+          ? "1px solid hsl(var(--primary) / 0.3)"
+          : hovered
+          ? "1px solid hsl(var(--border))"
+          : "1px solid hsl(var(--border) / 0.4)",
+        transform: isSelected
+          ? "translateX(6px)"
+          : hovered
+          ? "translateX(6px) scale(1.02)"
+          : "translateX(0) scale(1)",
+        boxShadow: isSelected
+          ? "0 4px 20px hsl(var(--primary) / 0.1)"
+          : hovered
+          ? "0 4px 20px hsl(var(--foreground) / 0.08)"
+          : "0 1px 4px hsl(var(--foreground) / 0.03)",
+      }}
+      onClick={() => onSelect(email)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="px-4 py-3">
+        {/* Subject */}
+        <p
+          className="text-sm font-normal truncate leading-snug transition-colors duration-200"
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontStyle: isSelected || hovered ? "italic" : "normal",
+            color: isSelected
+              ? "hsl(var(--primary))"
+              : hovered
+              ? "hsl(var(--foreground))"
+              : "hsl(var(--foreground) / 0.85)",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {email.subject || "(No Subject)"}
+        </p>
+
+        {/* From */}
+        <p className="text-xs text-muted-foreground/60 truncate mt-1 tracking-wide">
+          {email.from || "—"}
+        </p>
+
+        {/* Footer row */}
+        <div className="flex items-center justify-between mt-2.5">
+          <div className="flex items-center gap-1">
+            <Clock className="h-2.5 w-2.5 text-muted-foreground/35" />
+            <span className="text-xs text-muted-foreground/35 tabular-nums">
+              {formatTime(email.date)}
+            </span>
+          </div>
+          <span
+            className="text-xs italic transition-all duration-200"
+            style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              color: "hsl(var(--muted-foreground) / 0.4)",
+              opacity: hovered || isSelected ? 1 : 0,
+              transform:
+                hovered || isSelected ? "translateX(0)" : "translateX(-4px)",
+            }}
+          >
+            open →
+          </span>
+        </div>
+      </div>
+
+      {/* Bottom accent bar */}
+      <div
+        className="h-px transition-all duration-300 origin-left"
+        style={{
+          background:
+            "linear-gradient(90deg, hsl(var(--primary)) 0%, transparent 100%)",
+          transform: isSelected || hovered ? "scaleX(1)" : "scaleX(0)",
+        }}
+      />
+    </div>
+  );
+}
+
 // ── EmailSidebar ───────────────────────────────────────────────────────────
 
 interface EmailSidebarProps {
@@ -300,7 +401,8 @@ function EmailSidebar({
   onSearchChange,
   onLogin,
 }: EmailSidebarProps) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [headerHovered, setHeaderHovered] = useState(false);
 
   const filtered = emails.filter((e) => {
     const q = searchQuery.toLowerCase();
@@ -311,158 +413,317 @@ function EmailSidebar({
   });
 
   return (
-    <aside className="w-72 shrink-0 flex flex-col border-r border-border bg-card/50 h-full overflow-hidden">
-      {/* Header */}
+    <aside
+      className="w-72 shrink-0 flex flex-col border-r border-border bg-card/50 h-full overflow-hidden"
+      aria-label="Gmail Inbox"
+    >
+
+      {/* ── Nav Row (Inbox toggle) ── */}
       <div
-        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-accent/50 transition-colors border-b border-border"
-        onClick={() => setOpen((v) => !v)}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && setOpen((v) => !v)}
         aria-expanded={open}
+        aria-label="Toggle Gmail Inbox"
+        onClick={() => setOpen((v) => !v)}
+        onKeyDown={(e) => e.key === "Enter" && setOpen((v) => !v)}
+        onMouseEnter={() => setHeaderHovered(true)}
+        onMouseLeave={() => setHeaderHovered(false)}
+        className="relative flex items-center gap-3 px-5 py-5 cursor-pointer select-none border-b border-border/20 transition-all duration-300"
+        style={{
+          background: open
+            ? "hsl(var(--accent) / 0.6)"
+            : headerHovered
+            ? "hsl(var(--accent) / 0.3)"
+            : "transparent",
+          transform: open
+            ? "translateX(6px)"
+            : headerHovered
+            ? "translateX(4px)"
+            : "translateX(0)",
+          boxShadow:
+            open || headerHovered
+              ? "-3px 0 0 0 hsl(var(--primary) / 0.7), 4px 0 16px hsl(var(--foreground) / 0.06)"
+              : "none",
+        }}
       >
-        <div className="flex items-center gap-2">
-          {open ? (
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-          )}
-          <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-            <Inbox className="h-3.5 w-3.5" />
-            Gmail Inbox
+        {/* Number */}
+        <span
+          className="text-xs shrink-0 font-medium tabular-nums transition-colors duration-200"
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            minWidth: "1.5rem",
+            color:
+              open || headerHovered
+                ? "hsl(var(--primary))"
+                : "hsl(var(--muted-foreground) / 0.35)",
+          }}
+        >
+          01
+        </span>
+
+        {/* Label */}
+        <div className="flex-1 min-w-0 relative">
+          <span
+            className="block transition-all duration-300 ease-in-out"
+            style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontWeight: 600,
+              fontSize: headerHovered || open ? "1.3rem" : "1.05rem",
+              fontStyle: headerHovered || open ? "italic" : "normal",
+              letterSpacing: headerHovered || open ? "-0.03em" : "-0.01em",
+              color: open
+                ? "hsl(var(--foreground))"
+                : headerHovered
+                ? "hsl(var(--foreground))"
+                : "hsl(var(--foreground) / 0.6)",
+              lineHeight: 1.1,
+            }}
+          >
+            Inbox
           </span>
+
+          {/* Animated underline */}
+          <span
+            className="block h-px mt-1 origin-left transition-transform duration-300"
+            style={{
+              background:
+                "linear-gradient(90deg, hsl(var(--primary)) 0%, transparent 100%)",
+              transform: open || headerHovered ? "scaleX(1)" : "scaleX(0)",
+              opacity: open ? 1 : 0.6,
+            }}
+            aria-hidden="true"
+          />
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">{emails.length}</span>
+
+        {/* Right: count + refresh + chevron */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {emails.length > 0 && (
+            <span
+              className="text-xs tabular-nums transition-colors duration-200"
+              style={{
+                color:
+                  open || headerHovered
+                    ? "hsl(var(--primary) / 0.7)"
+                    : "hsl(var(--muted-foreground) / 0.35)",
+              }}
+            >
+              {emails.length}
+            </span>
+          )}
           {isAuthenticated && (
             <Button
               variant="ghost"
               size="icon"
-              className="h-5 w-5 text-muted-foreground hover:text-foreground"
+              className="h-5 w-5 text-muted-foreground/40 hover:text-foreground"
               onClick={(e) => {
                 e.stopPropagation();
                 onRefresh();
               }}
               aria-label="Refresh inbox"
             >
-              <RefreshCw className={cn("h-3 w-3", isLoading && "animate-spin")} />
+              <RefreshCw
+                className={cn("h-2.5 w-2.5", isLoading && "animate-spin")}
+              />
             </Button>
           )}
+          <ChevronDown
+            className="h-3 w-3 transition-all duration-300"
+            style={{
+              transform: open ? "rotate(180deg)" : "rotate(0deg)",
+              color:
+                open || headerHovered
+                  ? "hsl(var(--primary) / 0.6)"
+                  : "hsl(var(--muted-foreground) / 0.35)",
+            }}
+          />
         </div>
       </div>
 
-      {/* Search */}
-      {open && isAuthenticated && emails.length > 0 && (
-        <div className="px-3 py-2 border-b border-border">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search by subject or sender…"
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-            />
+      {/* ── Dropdown panel ── */}
+      <div
+        className="transition-all duration-300 ease-in-out flex flex-col"
+        style={{
+          maxHeight: open ? "9999px" : "0px",
+          opacity: open ? 1 : 0,
+          overflow: open ? "visible" : "hidden",
+          borderBottom: open ? "1px solid hsl(var(--border) / 0.3)" : "none",
+        }}
+      >
+        <div
+          className="flex flex-col flex-1"
+          style={{
+            background:
+              "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--card) / 0.6) 100%)",
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          {/* Section label inside dropdown */}
+          <div className="px-5 pt-3 pb-1">
+            <span
+              className="text-xs tracking-[0.18em] uppercase italic"
+              style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                color: "hsl(var(--muted-foreground) / 0.35)",
+              }}
+            >
+              Gmail Inbox
+            </span>
           </div>
-        </div>
-      )}
 
-      {/* Body */}
-      {open && (
-        <div className="flex-1 overflow-y-auto">
-          {/* Not logged in */}
-          {!isAuthenticated && (
-            <div className="flex flex-col items-center justify-center gap-3 py-12 px-4 text-center">
-              <AlertCircle className="h-7 w-7 text-muted-foreground/40" />
-              <p className="text-xs text-muted-foreground">
-                Sign in with Google to load your inbox
-              </p>
-              <Button size="sm" onClick={onLogin} className="gap-1.5 text-xs">
-                <Mail className="h-3.5 w-3.5" />
-                Sign in
-              </Button>
+          {/* ── Search bar ── */}
+          {isAuthenticated && emails.length > 0 && (
+            <div className="px-4 py-2.5">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground/40 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search subject or sender…"
+                  value={searchQuery}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="w-full pl-8 pr-3 py-2 text-xs rounded-lg border bg-background/60 text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all duration-200"
+                  style={{
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontStyle: "italic",
+                    borderColor: "hsl(var(--border) / 0.4)",
+                  }}
+                />
+              </div>
             </div>
           )}
 
-          {/* Loading skeletons */}
-          {isAuthenticated && isLoading && (
-            <div role="status" aria-label="Loading emails">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="px-3 py-3 border-b border-border/50 space-y-1.5"
-                >
-                  <div className="h-3 rounded bg-muted animate-pulse w-4/5" />
-                  <div className="h-2.5 rounded bg-muted animate-pulse w-3/5" />
-                  <div className="h-2 rounded bg-muted animate-pulse w-1/4" />
+          {/* ── Body ── */}
+          <div
+            className="overflow-y-auto"
+            style={{
+              maxHeight: "320px",
+              scrollbarWidth: "thin",
+              scrollbarColor: "hsl(var(--border)) transparent",
+            }}
+          >
+            {/* Not logged in */}
+            {!isAuthenticated && (
+              <div className="flex flex-col items-center justify-center gap-4 py-12 px-4 text-center">
+                <div className="opacity-20">
+                  <AlertCircle className="h-8 w-8" />
                 </div>
-              ))}
-            </div>
-          )}
+                <p
+                  className="text-xs tracking-[0.15em] uppercase italic text-muted-foreground/40"
+                  style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                >
+                  Sign in to load your inbox
+                </p>
+                <button
+                  onClick={onLogin}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs transition-all duration-200 border"
+                  style={{
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontStyle: "italic",
+                    borderColor: "hsl(var(--primary) / 0.4)",
+                    color: "hsl(var(--primary))",
+                    background: "hsl(var(--primary) / 0.05)",
+                  }}
+                >
+                  <Mail className="h-3.5 w-3.5" />
+                  Sign in with Google
+                </button>
+              </div>
+            )}
 
-          {/* Empty / no results */}
-          {isAuthenticated && !isLoading && filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center gap-2 py-12 px-4 text-center">
-              {searchQuery ? (
-                <>
-                  <Search className="h-7 w-7 text-muted-foreground/40" />
-                  <p className="text-xs text-muted-foreground">
-                    No emails match &ldquo;{searchQuery}&rdquo;
-                  </p>
-                </>
-              ) : (
-                <>
-                  <MailOpen className="h-7 w-7 text-muted-foreground/40" />
-                  <p className="text-xs text-muted-foreground">
-                    No inbox emails found.
-                  </p>
+            {/* Loading skeletons */}
+            {isAuthenticated && isLoading && (
+              <div role="status" aria-label="Loading emails" className="py-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="mx-3 my-1.5 rounded-xl px-4 py-3"
+                    style={{
+                      background: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border) / 0.3)",
+                    }}
+                  >
+                    <div className="h-3 rounded bg-muted animate-pulse w-4/5 mb-2" />
+                    <div className="h-2.5 rounded bg-muted animate-pulse w-3/5 mb-2" />
+                    <div className="h-2 rounded bg-muted animate-pulse w-1/4" />
+                  </div>
+                ))}
+                <p
+                  className="text-center text-xs italic tracking-widest text-muted-foreground/30 py-3"
+                  style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                >
+                  Loading…
+                </p>
+              </div>
+            )}
+
+            {/* Empty / no results */}
+            {isAuthenticated && !isLoading && filtered.length === 0 && (
+              <div className="flex flex-col items-center justify-center gap-3 py-10 px-4 text-center">
+                <div className="opacity-20">
+                  {searchQuery ? (
+                    <Search className="h-8 w-8" />
+                  ) : (
+                    <MailOpen className="h-8 w-8" />
+                  )}
+                </div>
+                <p
+                  className="text-xs tracking-[0.18em] uppercase italic text-muted-foreground/40"
+                  style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                >
+                  {searchQuery
+                    ? `No results for "${searchQuery}"`
+                    : "No inbox emails found"}
+                </p>
+                {!searchQuery && (
                   <button
                     onClick={onRefresh}
-                    className="text-xs text-primary hover:underline mt-1"
+                    className="text-xs italic transition-colors duration-200"
+                    style={{
+                      fontFamily: "'Playfair Display', Georgia, serif",
+                      color: "hsl(var(--primary) / 0.6)",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = "hsl(var(--primary))")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color =
+                        "hsl(var(--primary) / 0.6)")
+                    }
                   >
-                    Refresh
+                    ↻ Refresh
                   </button>
-                </>
-              )}
-            </div>
-          )}
-
-          {/* Email list */}
-          {isAuthenticated && !isLoading && filtered.length > 0 &&
-            filtered.map((email) => (
-              <button
-                key={email.id}
-                onClick={() => onSelect(email)}
-                className={cn(
-                  "w-full text-left px-3 py-3 border-b border-border/50 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary",
-                  selectedEmailId === email.id
-                    ? "bg-primary/10"
-                    : "hover:bg-accent"
                 )}
-              >
-                <p
-                  className={cn(
-                    "text-xs font-semibold truncate",
-                    selectedEmailId === email.id
-                      ? "text-primary"
-                      : "text-foreground"
-                  )}
-                >
-                  {email.subject || "(No Subject)"}
-                </p>
-                <p className="text-xs text-muted-foreground truncate mt-0.5">
-                  {email.from || "—"}
-                </p>
-                <div className="flex items-center gap-1 mt-1.5">
-                  <Clock className="h-2.5 w-2.5 text-muted-foreground/60" />
-                  <span className="text-xs text-muted-foreground/60">
-                    {formatTime(email.date)}
-                  </span>
-                </div>
-              </button>
-            ))}
+              </div>
+            )}
+
+            {/* ── Email list ── */}
+            {isAuthenticated && !isLoading && filtered.length > 0 && (
+              <div className="py-2">
+                {filtered.map((email) => {
+                  const isSelected = selectedEmailId === email.id;
+                  return (
+                    <EmailCard
+                      key={email.id}
+                      email={email}
+                      isSelected={isSelected}
+                      onSelect={onSelect}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
+
+      {/* ── Footer ── */}
+      <div className="px-5 py-5 mt-auto border-t border-border/20">
+        <p
+          className="text-xs tracking-[0.15em] uppercase text-muted-foreground/25 select-none italic"
+          style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+        >
+          AI Mail
+        </p>
+      </div>
     </aside>
   );
 }
