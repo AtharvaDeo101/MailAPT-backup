@@ -9,6 +9,10 @@ import { DevelopersSection } from "@/components/landing/benifits";
 import { CtaSection } from "@/components/landing/cta-section";
 import { FooterSection } from "@/components/landing/footer-section";
 
+import { ServiceCards } from "@/components/landing/ServiceCards";
+
+
+
 export default function Home() {
   return (
     <main className="relative min-h-screen overflow-x-hidden noise-overlay">
@@ -16,6 +20,9 @@ export default function Home() {
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />
+      
+      <ServiceCards />
+
 
       <SecuritySection />
       <DevelopersSection />

@@ -7,6 +7,8 @@ import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
 import './globals.css'
 
+
+
 export const metadata: Metadata = {
   title: 'MailAPT',
   description: 'Generate and summarize emails with AI. Compose professional emails faster and understand email content instantly.',
@@ -41,3 +43,4 @@ export default function RootLayout({
     </html>
   )
 }
+
