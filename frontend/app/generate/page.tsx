@@ -1045,14 +1045,6 @@ function EmailSidebar({
       </nav>
 
       {/* ── Footer ── */}
-      <div className="px-5 py-5 mt-auto border-t border-border/20">
-        <p
-          className="text-xs tracking-[0.15em] uppercase text-muted-foreground/25 select-none italic"
-          style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
-        >
-          AI Mail
-        </p>
-      </div>
     </aside>
   );
 }
@@ -1300,11 +1292,34 @@ export default function EmailGenerator() {
             <div className="relative z-10 flex items-center justify-between h-full px-8 md:px-12 max-w-2xl mx-auto w-full">
               <div>
                 <h1 className="text-3xl font-semibold text-foreground tracking-tight">
-                  AI Email Generator
+                  <span
+                    className="font-bold select-none"
+                    style={{
+                      fontFamily: "'Playfair Display', Georgia, serif",
+                      fontStyle: "italic",
+                      fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
+                      letterSpacing: "-0.03em",
+                      color: "hsl(var(--foreground))",
+                    }}
+                  >
+                    Email Generator
+                  </span>
                 </h1>
-                <p className="text-base text-muted-foreground mt-1">
-                  Describe what you want to say — get a professional email
-                  instantly.
+                <p className="mt-1.5">
+                  <span
+                    className="select-none"
+                    style={{
+                      fontFamily: "'Playfair Display', Georgia, serif",
+                      fontStyle: "italic",
+                      fontSize: "clamp(0.75rem, 1.2vw, 0.875rem)",
+                      letterSpacing: "0.08em",
+                      color: "hsl(var(--muted-foreground) / 0.55)",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Describe what you want to say — get a professional email
+                    
+                  </span>
                 </p>
               </div>
               <Button

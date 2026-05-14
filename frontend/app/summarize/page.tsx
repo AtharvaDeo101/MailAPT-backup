@@ -226,7 +226,7 @@ function SummaryCard({ summary, onCopy, copied }: SummaryCardProps) {
           <span
             className={cn(
               "text-xs font-semibold px-2.5 py-0.5 rounded-full",
-              sentimentColor(summary.sentiment)
+              sentimentColor(summary.sentiment),
             )}
           >
             {summary.sentiment}
@@ -244,7 +244,9 @@ function SummaryCard({ summary, onCopy, copied }: SummaryCardProps) {
             <ul className="space-y-2">
               {summary.keyPoints.map((point, i) => (
                 <li key={i} className="flex gap-2.5 text-sm text-foreground/80">
-                  <span className="text-primary font-bold shrink-0 mt-0.5">•</span>
+                  <span className="text-primary font-bold shrink-0 mt-0.5">
+                    •
+                  </span>
                   <span className="leading-relaxed">{point}</span>
                 </li>
               ))}
@@ -263,7 +265,9 @@ function SummaryCard({ summary, onCopy, copied }: SummaryCardProps) {
             <ul className="space-y-2">
               {summary.actionItems.map((item, i) => (
                 <li key={i} className="flex gap-2.5 text-sm text-foreground/80">
-                  <span className="text-emerald-500 font-bold shrink-0 mt-0.5">✓</span>
+                  <span className="text-emerald-500 font-bold shrink-0 mt-0.5">
+                    ✓
+                  </span>
                   <span className="leading-relaxed">{item}</span>
                 </li>
               ))}
@@ -274,7 +278,6 @@ function SummaryCard({ summary, onCopy, copied }: SummaryCardProps) {
     </div>
   );
 }
-
 
 /** Styled email card for the Inbox list */
 function EmailCard({
@@ -295,23 +298,23 @@ function EmailCard({
         background: isSelected
           ? "linear-gradient(135deg, hsl(var(--primary) / 0.12) 0%, hsl(var(--accent)) 100%)"
           : hovered
-          ? "linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--accent)) 100%)"
-          : "hsl(var(--card))",
+            ? "linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--accent)) 100%)"
+            : "hsl(var(--card))",
         border: isSelected
           ? "1px solid hsl(var(--primary) / 0.3)"
           : hovered
-          ? "1px solid hsl(var(--border))"
-          : "1px solid hsl(var(--border) / 0.4)",
+            ? "1px solid hsl(var(--border))"
+            : "1px solid hsl(var(--border) / 0.4)",
         transform: isSelected
           ? "translateX(6px)"
           : hovered
-          ? "translateX(6px) scale(1.02)"
-          : "translateX(0) scale(1)",
+            ? "translateX(6px) scale(1.02)"
+            : "translateX(0) scale(1)",
         boxShadow: isSelected
           ? "0 4px 20px hsl(var(--primary) / 0.1)"
           : hovered
-          ? "0 4px 20px hsl(var(--foreground) / 0.08)"
-          : "0 1px 4px hsl(var(--foreground) / 0.03)",
+            ? "0 4px 20px hsl(var(--foreground) / 0.08)"
+            : "0 1px 4px hsl(var(--foreground) / 0.03)",
       }}
       onClick={() => onSelect(email)}
       onMouseEnter={() => setHovered(true)}
@@ -327,8 +330,8 @@ function EmailCard({
             color: isSelected
               ? "hsl(var(--primary))"
               : hovered
-              ? "hsl(var(--foreground))"
-              : "hsl(var(--foreground) / 0.85)",
+                ? "hsl(var(--foreground))"
+                : "hsl(var(--foreground) / 0.85)",
             letterSpacing: "-0.01em",
           }}
         >
@@ -417,7 +420,6 @@ function EmailSidebar({
       className="w-72 shrink-0 flex flex-col border-r border-border bg-card/50 h-full overflow-hidden"
       aria-label="Gmail Inbox"
     >
-
       {/* ── Nav Row (Inbox toggle) ── */}
       <div
         role="button"
@@ -433,13 +435,13 @@ function EmailSidebar({
           background: open
             ? "hsl(var(--accent) / 0.6)"
             : headerHovered
-            ? "hsl(var(--accent) / 0.3)"
-            : "transparent",
+              ? "hsl(var(--accent) / 0.3)"
+              : "transparent",
           transform: open
             ? "translateX(6px)"
             : headerHovered
-            ? "translateX(4px)"
-            : "translateX(0)",
+              ? "translateX(4px)"
+              : "translateX(0)",
           boxShadow:
             open || headerHovered
               ? "-3px 0 0 0 hsl(var(--primary) / 0.7), 4px 0 16px hsl(var(--foreground) / 0.06)"
@@ -474,8 +476,8 @@ function EmailSidebar({
               color: open
                 ? "hsl(var(--foreground))"
                 : headerHovered
-                ? "hsl(var(--foreground))"
-                : "hsl(var(--foreground) / 0.6)",
+                  ? "hsl(var(--foreground))"
+                  : "hsl(var(--foreground) / 0.6)",
               lineHeight: 1.1,
             }}
           >
@@ -741,7 +743,9 @@ export default function SummarizePage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Selected email + summary
-  const [selectedEmail, setSelectedEmail] = useState<SelectedEmail | null>(null);
+  const [selectedEmail, setSelectedEmail] = useState<SelectedEmail | null>(
+    null,
+  );
   const [summary, setSummary] = useState<Summary | null>(null);
   const [summarizing, setSummarizing] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -772,10 +776,9 @@ export default function SummarizePage() {
   const fetchInbox = useCallback(async () => {
     setInboxLoading(true);
     try {
-      const res = await fetch(
-        `${API}/list_emails?max_results=20&q=in:inbox`,
-        { credentials: "include" }
-      );
+      const res = await fetch(`${API}/list_emails?max_results=20&q=in:inbox`, {
+        credentials: "include",
+      });
       if (res.status === 401) {
         setIsAuthenticated(false);
         toast.error("Session expired. Please sign in again.");
@@ -783,7 +786,9 @@ export default function SummarizePage() {
       }
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error((data as { error?: string }).error || "Failed to fetch inbox");
+        throw new Error(
+          (data as { error?: string }).error || "Failed to fetch inbox",
+        );
       }
       const data = await res.json();
       const fetched: GmailEmail[] = data.emails || [];
@@ -861,7 +866,7 @@ export default function SummarizePage() {
       if (!sumRes.ok) {
         const errData = await sumRes.json().catch(() => ({}));
         throw new Error(
-          (errData as { error?: string }).error || "Summarization failed"
+          (errData as { error?: string }).error || "Summarization failed",
         );
       }
       const sumData = await sumRes.json();
@@ -945,10 +950,34 @@ export default function SummarizePage() {
             <div className="relative z-10 flex items-center justify-between h-full px-8 md:px-12 max-w-3xl mx-auto w-full">
               <div>
                 <h1 className="text-3xl font-semibold text-foreground tracking-tight">
-                  AI Email Summarizer
+                  <span
+                    className="font-bold select-none"
+                    style={{
+                      fontFamily: "'Playfair Display', Georgia, serif",
+                      fontStyle: "italic",
+                      fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
+                      letterSpacing: "-0.03em",
+                      color: "hsl(var(--foreground))",
+                    }}
+                  >
+                    Email Summary
+                  </span>
                 </h1>
-                <p className="text-base text-muted-foreground mt-1">
-                  Select any email to instantly extract key points and action items.
+                <p className="mt-1.5">
+                  <span
+                    className="select-none"
+                    style={{
+                      fontFamily: "'Playfair Display', Georgia, serif",
+                      fontStyle: "italic",
+                      fontSize: "clamp(0.75rem, 1.2vw, 0.875rem)",
+                      letterSpacing: "0.08em",
+                      color: "hsl(var(--muted-foreground) / 0.55)",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Select an Email - Get instant summarization. 
+
+                  </span>
                 </p>
               </div>
               {selectedEmail && (
@@ -968,7 +997,6 @@ export default function SummarizePage() {
           {/* Content */}
           <div className="p-6 md:p-8">
             <div className="max-w-3xl mx-auto space-y-6">
-
               {/* Not logged in — full page prompt */}
               {!isAuthenticated && (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 py-24 text-center gap-4 animate-in fade-in duration-300">
@@ -1062,9 +1090,18 @@ export default function SummarizePage() {
                     <Sparkles className="h-5 w-5 text-accent-foreground animate-pulse" />
                   </div>
                   <div className="flex gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span
+                      className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    />
+                    <span
+                      className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <span
+                      className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    />
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Generating summary…
