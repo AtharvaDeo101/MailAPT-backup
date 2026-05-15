@@ -6,25 +6,25 @@ import { User } from "lucide-react";
 const securityFeatures = [
   {
     title: "Entrepreneurs & Startups",
-    description:
-      "Send outreach, proposals, and updates quickly.",
+    description: "Send outreach, proposals, and updates quickly.",
   },
   {
     title: "Sales & Marketing Teams",
     description: "Generate high-converting emails in seconds.",
   },
   {
-    title: "Freelancers & Professionalse",
+    title: "Freelancers & Professionals",
     description: "Communicate professionally without effort.",
   },
   {
     title: "Students & Job Seekers",
-    description:
-      "Write applications, cold emails, and follow-ups.",
+    description: "Write applications, cold emails, and follow-ups.",
   },
 ];
 
 const certifications = ["SOC 2", "ISO 27001", "HIPAA", "GDPR", "CCPA"];
+
+const playfair = "'Playfair Display', Georgia, serif";
 
 export function SecuritySection() {
   const [isVisible, setIsVisible] = useState(false);
@@ -56,23 +56,70 @@ export function SecuritySection() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6">
-              <span className="w-8 h-px bg-foreground/30" />
+            {/* Eyebrow */}
+            <span
+              className="inline-flex items-center gap-3 mb-6"
+              style={{
+                fontFamily: playfair,
+                fontStyle: "italic",
+                fontWeight: 400,
+                fontSize: "0.875rem",
+                letterSpacing: "0.12em",
+                color: "hsl(var(--muted-foreground) / 0.55)",
+              }}
+            >
+              <span
+                className="w-8 h-px"
+                style={{ background: "hsl(var(--foreground) / 0.3)" }}
+              />
               Consumer
             </span>
-            <h2 className="text-4xl lg:text-6xl font-display tracking-tight mb-8">
+
+            {/* Heading */}
+            <h2
+              className="mb-8"
+              style={{
+                fontFamily: playfair,
+                fontWeight: 500,
+                fontStyle: "normal",
+                fontSize: "clamp(2.2rem, 6vw, 4rem)",
+                letterSpacing: "-0.03em",
+                lineHeight: 1.05,
+                color: "hsl(var(--foreground))",
+              }}
+            >
               Who is
               <br />
-              this for?
+              <span
+                style={{
+                  fontStyle: "italic",
+                  color: "hsl(var(--foreground))",
+                }}
+              >
+                this for?
+              </span>
             </h2>
-            <p className="text-xl text-muted-foreground leading-relaxed mb-12">
+
+            {/* Description */}
+            <p
+              style={{
+                fontFamily: playfair,
+                fontStyle: "italic",
+                fontWeight: 400,
+                fontSize: "clamp(1rem, 1.8vw, 1.3rem)",
+                color: "hsl(var(--muted-foreground) / 0.72)",
+                lineHeight: 1.75,
+                letterSpacing: "0.01em",
+                maxWidth: "34rem",
+              }}
+            >
               This application is tailored for individuals who frequently use
               email, offering features that simplify and enhance the efficiency
               of reading and writing messages.
             </p>
           </div>
 
-          {/* Right: Features with single User icon */}
+          {/* Right: Features */}
           <div className="grid gap-6">
             {securityFeatures.map((feature, index) => (
               <div
@@ -88,16 +135,65 @@ export function SecuritySection() {
                   <div className="shrink-0 w-10 h-10 flex items-center justify-center border border-foreground/10 group-hover:bg-foreground group-hover:text-background transition-colors duration-300">
                     <User className="w-5 h-5" />
                   </div>
+
                   <div>
-                    <h3 className="text-lg font-medium mb-1 group-hover:translate-x-1 transition-transform duration-300">
+                    <h3
+                      className="mb-1 group-hover:translate-x-1 transition-transform duration-300"
+                      style={{
+                        fontFamily: playfair,
+                        fontWeight: 500,
+                        fontStyle: "normal",
+                        fontSize: "clamp(1.1rem, 2vw, 1.35rem)",
+                        letterSpacing: "-0.02em",
+                        lineHeight: 1.2,
+                        color: "hsl(var(--foreground))",
+                      }}
+                    >
                       {feature.title}
                     </h3>
-                    <p className="text-muted-foreground">
+
+                    <p
+                      style={{
+                        fontFamily: playfair,
+                        fontStyle: "italic",
+                        fontWeight: 400,
+                        fontSize: "0.98rem",
+                        color: "hsl(var(--muted-foreground) / 0.72)",
+                        lineHeight: 1.7,
+                        letterSpacing: "0.01em",
+                      }}
+                    >
                       {feature.description}
                     </p>
                   </div>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Optional certification row */}
+        <div
+          className={`mt-16 lg:mt-20 transition-all duration-700 delay-300 ${
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+          }`}
+        >
+          <div className="flex flex-wrap gap-3">
+            {certifications.map((item) => (
+              <span
+                key={item}
+                className="px-4 py-2 border border-foreground/10 rounded-full"
+                style={{
+                  fontFamily: playfair,
+                  fontStyle: "italic",
+                  fontWeight: 400,
+                  fontSize: "0.85rem",
+                  color: "hsl(var(--muted-foreground) / 0.7)",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                {item}
+              </span>
             ))}
           </div>
         </div>

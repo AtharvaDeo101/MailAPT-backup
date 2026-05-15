@@ -716,16 +716,6 @@ function EmailSidebar({
           </div>
         </div>
       </div>
-
-      {/* ── Footer ── */}
-      <div className="px-5 py-5 mt-auto border-t border-border/20">
-        <p
-          className="text-xs tracking-[0.15em] uppercase text-muted-foreground/25 select-none italic"
-          style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
-        >
-          AI Mail
-        </p>
-      </div>
     </aside>
   );
 }
@@ -1129,9 +1119,7 @@ export default function SummarizePage() {
                 </Button>
               )}
 
-              <p className="text-center text-xs text-muted-foreground pb-4">
-                Powered by AI · Summaries are generated automatically
-              </p>
+
             </div>
           </div>
         </main>

@@ -5,13 +5,13 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 
-
-
 const navLinks = [
   { name: "Write Mail", href: "/generate" },
   { name: "Read Mail", href: "/summarize" },
   { name: "Pricing", href: "#pricing" },
 ];
+
+const playfair = "'Playfair Display', Georgia, serif";
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -29,9 +29,7 @@ export function Navigation() {
     const checkAuth = async () => {
       setCheckingAuth(true);
       try {
-        const res = await fetch("http://localhost:5000/me", {
-          credentials: "include",
-        });
+        const res = await fetch("http://localhost:5000/me", { credentials: "include" });
         if (res.ok) {
           const data = await res.json();
           setIsAuthenticated("emailAddress" in data);
@@ -49,10 +47,7 @@ export function Navigation() {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:5000/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      await fetch("http://localhost:5000/logout", { method: "POST", credentials: "include" });
     } catch {
       // silently fail
     } finally {
@@ -79,75 +74,135 @@ export function Navigation() {
             isScrolled ? "h-14" : "h-20"
           }`}
         >
-          {/* Logo */}
+
+          {/* ── Logo — Playfair italic, matches HeroSection brand feel ── */}
           <a href="/" className="flex items-center gap-2 group">
             <span
-              className={`font-display tracking-tight transition-all duration-500 ${
-                isScrolled ? "text-xl" : "text-2xl"
-              }`}
+              style={{
+                fontFamily: playfair,
+                fontStyle: "italic",
+                fontWeight: 500,
+                letterSpacing: "-0.03em",
+                lineHeight: 1,
+                color: "hsl(var(--foreground))",
+                fontSize: isScrolled ? "1.2rem" : "1.5rem",
+                transition: "font-size 0.5s ease",
+              }}
             >
               MailAPT
             </span>
-
           </a>
 
-          {/* Desktop nav links — only when authenticated */}
+          {/* ── Desktop nav links — Playfair italic, muted ── */}
           {!checkingAuth && isAuthenticated && (
             <div className="hidden md:flex items-center gap-12">
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-sm text-foreground/70 hover:text-foreground transition-colors duration-300 relative group"
+                  className="relative group transition-colors duration-300"
+                  style={{
+                    fontFamily: playfair,
+                    fontStyle: "italic",
+                    fontWeight: 400,
+                    fontSize: "0.9rem",
+                    letterSpacing: "0.01em",
+                    color: "hsl(var(--foreground) / 0.6)",
+                    textDecoration: "none",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = "hsl(var(--foreground))")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = "hsl(var(--foreground) / 0.6)")
+                  }
                 >
                   {link.name}
-                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-300 group-hover:w-full" />
+                  {/* Animated underline — matches FeaturesSection card hover */}
+                  <span
+                    className="absolute -bottom-1 left-0 h-px w-0 origin-left transition-all duration-300 group-hover:w-full"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, hsl(var(--foreground) / 0.6) 0%, transparent 100%)",
+                    }}
+                  />
                 </a>
               ))}
             </div>
           )}
 
-          {/* Desktop right actions */}
+          {/* ── Desktop right actions ── */}
           <div className="hidden md:flex items-center gap-3">
             {checkingAuth ? (
               <div className="w-28 h-9 rounded-full bg-foreground/10 animate-pulse" />
             ) : isAuthenticated ? (
               <>
-                <Button
-                  size="sm"
-                  variant="outline"
+                {/* Sign out — Playfair italic styling */}
+                <button
                   onClick={handleLogout}
-                  className={`rounded-full transition-all duration-500 ${
-                    isScrolled ? "h-8 px-4 text-xs" : "px-5 text-sm"
-                  }`}
+                  className="rounded-full border border-foreground/20 transition-all duration-300 hover:border-foreground/50 hover:bg-foreground/5"
+                  style={{
+                    fontFamily: playfair,
+                    fontStyle: "italic",
+                    fontWeight: 400,
+                    fontSize: isScrolled ? "0.75rem" : "0.875rem",
+                    color: "hsl(var(--foreground) / 0.7)",
+                    padding: isScrolled ? "0.3rem 1rem" : "0.45rem 1.25rem",
+                    letterSpacing: "0.01em",
+                    transition: "all 0.3s ease",
+                    background: "transparent",
+                    cursor: "pointer",
+                  }}
                 >
                   Sign out
-                </Button>
-                <Button
-                  size="sm"
-                  className={`bg-primary hover:bg-primary/90 text-primary-foreground rounded-full transition-all duration-500 ${
-                    isScrolled ? "h-8 px-4 text-xs" : "px-6 text-sm"
-                  }`}
-                  asChild
+                </button>
+
+                {/* Generate Email CTA */}
+                <a
+                  href="/generate"
+                  className="rounded-full transition-all duration-300 hover:opacity-85"
+                  style={{
+                    fontFamily: playfair,
+                    fontStyle: "italic",
+                    fontWeight: 500,
+                    fontSize: isScrolled ? "0.75rem" : "0.875rem",
+                    color: "hsl(var(--primary-foreground))",
+                    background: "hsl(var(--primary))",
+                    padding: isScrolled ? "0.3rem 1rem" : "0.45rem 1.5rem",
+                    letterSpacing: "-0.01em",
+                    textDecoration: "none",
+                    display: "inline-block",
+                    transition: "all 0.3s ease",
+                  }}
                 >
-                  <a href="/generate">Generate Email</a>
-                </Button>
+                  Generate Email
+                </a>
               </>
             ) : (
-              // ✅ Changed: points to /login (Next.js page), not Flask directly
-              <Button
-                size="sm"
-                className={`bg-primary hover:bg-primary/90 text-primary-foreground rounded-full transition-all duration-500 ${
-                  isScrolled ? "h-8 px-4 text-xs" : "px-6 text-sm"
-                }`}
-                asChild
+              /* Get Started CTA */
+              <a
+                href="/login"
+                className="rounded-full transition-all duration-300 hover:opacity-85"
+                style={{
+                  fontFamily: playfair,
+                  fontStyle: "italic",
+                  fontWeight: 500,
+                  fontSize: isScrolled ? "0.75rem" : "0.875rem",
+                  color: "hsl(var(--primary-foreground))",
+                  background: "hsl(var(--primary))",
+                  padding: isScrolled ? "0.3rem 1rem" : "0.45rem 1.5rem",
+                  letterSpacing: "-0.01em",
+                  textDecoration: "none",
+                  display: "inline-block",
+                  transition: "all 0.3s ease",
+                }}
               >
-                <a href="/login">Get Started</a>
-              </Button>
+                Get Started
+              </a>
             )}
           </div>
 
-          {/* Mobile hamburger */}
+          {/* ── Mobile hamburger ── */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden p-2"
@@ -161,7 +216,7 @@ export function Navigation() {
           </button>
         </div>
 
-        {/* Mobile full-screen menu */}
+        {/* ── Mobile full-screen menu ── */}
         <div
           className={`md:hidden fixed inset-0 bg-background z-40 transition-all duration-500 ${
             isMobileMenuOpen
@@ -171,7 +226,8 @@ export function Navigation() {
           style={{ top: 0 }}
         >
           <div className="flex flex-col h-full px-8 pt-28 pb-8">
-            {/* Nav links only when authenticated */}
+
+            {/* Mobile nav links — large Playfair, matches HowItWorksSection step titles */}
             {!checkingAuth && isAuthenticated && (
               <div className="flex-1 flex flex-col justify-center gap-8">
                 {navLinks.map((link, i) => (
@@ -179,22 +235,52 @@ export function Navigation() {
                     key={link.name}
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`text-5xl font-display text-foreground hover:text-muted-foreground transition-all duration-500 ${
+                    className={`transition-all duration-500 ${
                       isMobileMenuOpen
                         ? "opacity-100 translate-y-0"
                         : "opacity-0 translate-y-4"
                     }`}
                     style={{
+                      fontFamily: playfair,
+                      fontStyle: "italic",
+                      fontWeight: 500,
+                      fontSize: "clamp(2.4rem, 10vw, 3.5rem)",
+                      letterSpacing: "-0.03em",
+                      lineHeight: 1.1,
+                      color: "hsl(var(--foreground))",
+                      textDecoration: "none",
                       transitionDelay: isMobileMenuOpen ? `${i * 75}ms` : "0ms",
                     }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = "hsl(var(--foreground) / 0.5)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = "hsl(var(--foreground))")
+                    }
                   >
+                    {/* Number prefix — like HowItWorksSection roman numerals */}
+                    <span
+                      style={{
+                        fontFamily: playfair,
+                        fontStyle: "italic",
+                        fontWeight: 400,
+                        fontSize: "0.9rem",
+                        color: "hsl(var(--foreground) / 0.3)",
+                        letterSpacing: "0.1em",
+                        marginRight: "1rem",
+                        display: "inline-block",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      0{i + 1}
+                    </span>
                     {link.name}
                   </Link>
                 ))}
               </div>
             )}
 
-            {/* Bottom CTA */}
+            {/* ── Mobile bottom CTA ── */}
             <div
               className={`flex gap-4 pt-8 border-t border-foreground/10 transition-all duration-500 ${
                 isMobileMenuOpen
@@ -205,31 +291,61 @@ export function Navigation() {
             >
               {isAuthenticated ? (
                 <>
-                  <Button
-                    variant="outline"
-                    className="flex-1 rounded-full h-14 text-base"
+                  <a
+                    href="/summarize"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    asChild
+                    className="flex-1 flex items-center justify-center rounded-full border border-foreground/20 transition-all duration-300 hover:bg-foreground/5"
+                    style={{
+                      fontFamily: playfair,
+                      fontStyle: "italic",
+                      fontWeight: 400,
+                      fontSize: "1rem",
+                      color: "hsl(var(--foreground))",
+                      height: "3.5rem",
+                      textDecoration: "none",
+                      letterSpacing: "0.01em",
+                    }}
                   >
-                    <a href="/summarize">Summarize</a>
-                  </Button>
-                  <Button
-                    className="flex-1 bg-primary text-primary-foreground rounded-full h-14 text-base"
+                    Summarize
+                  </a>
+                  <a
+                    href="/generate"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    asChild
+                    className="flex-1 flex items-center justify-center rounded-full transition-all duration-300 hover:opacity-85"
+                    style={{
+                      fontFamily: playfair,
+                      fontStyle: "italic",
+                      fontWeight: 500,
+                      fontSize: "1rem",
+                      color: "hsl(var(--primary-foreground))",
+                      background: "hsl(var(--primary))",
+                      height: "3.5rem",
+                      textDecoration: "none",
+                      letterSpacing: "-0.01em",
+                    }}
                   >
-                    <a href="/generate">Generate Email</a>
-                  </Button>
+                    Generate Email
+                  </a>
                 </>
               ) : (
-                // ✅ Changed: points to /login (Next.js page), not Flask directly
-                <Button
-                  className="flex-1 bg-primary text-primary-foreground rounded-full h-14 text-base"
+                <a
+                  href="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  asChild
+                  className="flex-1 flex items-center justify-center rounded-full transition-all duration-300 hover:opacity-85"
+                  style={{
+                    fontFamily: playfair,
+                    fontStyle: "italic",
+                    fontWeight: 500,
+                    fontSize: "1rem",
+                    color: "hsl(var(--primary-foreground))",
+                    background: "hsl(var(--primary))",
+                    height: "3.5rem",
+                    textDecoration: "none",
+                    letterSpacing: "-0.01em",
+                  }}
                 >
-                  <a href="/login">Get Started</a>
-                </Button>
+                  Get Started
+                </a>
               )}
             </div>
           </div>

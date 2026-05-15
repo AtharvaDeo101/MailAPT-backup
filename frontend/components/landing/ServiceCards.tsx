@@ -83,30 +83,64 @@ const SERVICE_CARDS: ServiceCard[] = [
 ];
 
 // ── Config ─────────────────────────────────────────────────────────────────
-const CARD_W         = 350;   // card width px
-const CARD_H         = 400;   // card height px
-const VISIBLE        = 3;     // cards visible at once
-const FAN_DEG        = 52;    // total arc spread in degrees (gap between cards)
-const ARC_R          = 1100;  // arc radius — larger = flatter fan
-const SCROLL_STEP    = 340;   // px of scroll to advance one card
-// Cards shift DOWN this far below vertical centre of stage:
-const STAGE_Y_BIAS   = 400;   // positive = push cards further down
+const CARD_W       = 350;
+const CARD_H       = 400;
+const VISIBLE      = 3;
+const FAN_DEG      = 52;
+const ARC_R        = 1100;
+const SCROLL_STEP  = 340;
+const STAGE_Y_BIAS = 400;
 
+const playfair = "'Playfair Display', Georgia, serif";
 
 // ── CardTooltip ────────────────────────────────────────────────────────────
 function CardTooltip({ tooltip }: { tooltip: TooltipData }) {
   const tipRef = useRef<HTMLDivElement>(null);
   const show = () => { if (tipRef.current) { tipRef.current.style.opacity = "1"; tipRef.current.style.transform = "translateY(0)"; } };
   const hide = () => { if (tipRef.current) { tipRef.current.style.opacity = "0"; tipRef.current.style.transform = "translateY(8px)"; } };
+
   return (
     <div className="absolute z-20" style={{ top: `${tooltip.top}%`, left: `${tooltip.left}%` }} onMouseEnter={show} onMouseLeave={hide}>
-      <button className="relative flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-white border border-white/30 hover:bg-white/30 transition-colors" aria-label={tooltip.title}>
+      <button
+        className="relative flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-white border border-white/30 hover:bg-white/30 transition-colors"
+        aria-label={tooltip.title}
+      >
         <span className="absolute inset-0 rounded-full border border-white/20 scale-[1.7] pointer-events-none" />
       </button>
-      <div ref={tipRef} className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-52 -translate-x-1/2 rounded-2xl border border-white/20 bg-black/88 p-3.5 backdrop-blur-md"
-        style={{ opacity: 0, transform: "translateY(8px)", transition: "opacity 200ms ease, transform 200ms ease" }}>
-        <p className="text-xs font-semibold text-white mb-1 leading-snug">{tooltip.title}</p>
-        <p className="text-[11px] text-white/65 leading-relaxed">{tooltip.description}</p>
+      <div
+        ref={tipRef}
+        className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-52 -translate-x-1/2 rounded-2xl border border-white/20 bg-black/88 p-3.5 backdrop-blur-md"
+        style={{ opacity: 0, transform: "translateY(8px)", transition: "opacity 200ms ease, transform 200ms ease" }}
+      >
+        {/* Tooltip title — Playfair italic */}
+        <p
+          style={{
+            fontFamily: playfair,
+            fontStyle: "italic",
+            fontWeight: 500,
+            fontSize: "0.75rem",
+            color: "#ffffff",
+            marginBottom: "0.25rem",
+            lineHeight: 1.4,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {tooltip.title}
+        </p>
+        {/* Tooltip description — Playfair italic, muted */}
+        <p
+          style={{
+            fontFamily: playfair,
+            fontStyle: "italic",
+            fontWeight: 400,
+            fontSize: "0.68rem",
+            color: "rgba(255,255,255,0.6)",
+            lineHeight: 1.65,
+            letterSpacing: "0.01em",
+          }}
+        >
+          {tooltip.description}
+        </p>
       </div>
     </div>
   );
@@ -135,13 +169,9 @@ export function ServiceCards() {
       const stageW = stage.offsetWidth;
       const stageH = stage.offsetHeight;
 
-      // ── Arc pivot ─────────────────────────────────────────────────────
-      // Pivot is centred horizontally, shifted below the bottom of stage
-      // so the arc cups upward into view. STAGE_Y_BIAS pushes cards lower.
       const pivotX = stageW / 2;
       const pivotY = stageH + ARC_R * 0.22 + STAGE_Y_BIAS;
 
-      // Convert arc angle to absolute (x, y) on screen
       const arcPos = (deg: number) => {
         const r = (deg * Math.PI) / 180;
         return {
@@ -150,25 +180,16 @@ export function ServiceCards() {
         };
       };
 
-      // Slot 0 = leftmost, Slot VISIBLE-1 = rightmost
-      // FAN_DEG governs total spread → more degrees = bigger gap between cards
       const slotAngle = (slot: number): number =>
         -FAN_DEG / 2 + (slot / (VISIBLE - 1)) * FAN_DEG;
 
-      // ── Below-arc "exit" position ─────────────────────────────────────
-      // Cards that get dismissed sink BELOW the arc (further down the circle)
-      // and fade out — instead of flying upward.
       const exitAngle = (baseAngle: number) => baseAngle - FAN_DEG * 0.7;
-      // "below" means rotating further clockwise past the leftmost slot,
-      // which geometrically moves the card downward along the circle.
 
-      // ── Title entrance ────────────────────────────────────────────────
       const lines = titleRef.current?.querySelectorAll<HTMLElement>(".t-line");
       if (lines?.length) {
         gsap.from(lines, { yPercent: 110, duration: 1, stagger: 0.13, ease: "power3.out", delay: 0.3 });
       }
 
-      // ── Total scroll = only dismissable cards ─────────────────────────
       const dismissable     = total - VISIBLE;
       const totalScrollDist = dismissable * SCROLL_STEP;
 
@@ -180,24 +201,19 @@ export function ServiceCards() {
         pinSpacing: true,
       });
 
-      // ── Place cards at initial positions ─────────────────────────────
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
-
         if (i < VISIBLE) {
-          // In the opening fan
           const angle = slotAngle(i);
           const pos   = arcPos(angle);
           gsap.set(card, { x: pos.x, y: pos.y, rotation: angle, zIndex: i + 1, opacity: 1 });
         } else {
-          // Waiting off-screen — start at rightmost arc position, pushed down
           const angle = slotAngle(VISIBLE - 1) + FAN_DEG * 0.5;
           const pos   = arcPos(angle);
           gsap.set(card, { x: pos.x, y: pos.y + 100, rotation: angle, zIndex: 0, opacity: 0 });
         }
       });
 
-      // ── Animate cards per scroll step ─────────────────────────────────
       for (let step = 0; step < dismissable; step++) {
         const scrollStart = step * SCROLL_STEP;
         const scrollEnd   = scrollStart + SCROLL_STEP;
@@ -208,57 +224,32 @@ export function ServiceCards() {
           scrub: 1,
         };
 
-        // ── EXIT: front card (step) sinks downward along the arc ─────────
-        // It continues rotating left/downward past slot-0, growing smaller
-        // and fading out, as if swallowed by the arc below.
         const exitCard = cardRefs.current[step];
         if (exitCard) {
           const fromAngle = slotAngle(0);
-          const toAngle   = exitAngle(fromAngle);         // further left = down on the circle
+          const toAngle   = exitAngle(fromAngle);
           const fromPos   = arcPos(fromAngle);
           const toPos     = arcPos(toAngle);
-
           gsap.fromTo(exitCard,
             { x: fromPos.x, y: fromPos.y, rotation: fromAngle, opacity: 1, scale: 1 },
-            {
-              x: toPos.x,
-              y: toPos.y + 40,   // small extra push to feel like it sinks under
-              rotation: toAngle,
-              opacity: 0,
-              scale: 0.88,
-              zIndex: 0,
-              ease: "none",
-              scrollTrigger: stCfg,
-            }
+            { x: toPos.x, y: toPos.y + 40, rotation: toAngle, opacity: 0, scale: 0.88, zIndex: 0, ease: "none", scrollTrigger: stCfg }
           );
         }
 
-        // ── SHIFT: remaining visible cards slide left one slot ────────────
         for (let s = 1; s < VISIBLE; s++) {
           const cardIdx = step + s;
           const card    = cardRefs.current[cardIdx];
           if (!card) continue;
-
           const fromAngle = slotAngle(s);
           const toAngle   = slotAngle(s - 1);
           const fromPos   = arcPos(fromAngle);
           const toPos     = arcPos(toAngle);
-
           gsap.fromTo(card,
             { x: fromPos.x, y: fromPos.y, rotation: fromAngle, opacity: 1 },
-            {
-              x: toPos.x,
-              y: toPos.y,
-              rotation: toAngle,
-              opacity: 1,
-              zIndex: cardIdx + 1,
-              ease: "none",
-              scrollTrigger: stCfg,
-            }
+            { x: toPos.x, y: toPos.y, rotation: toAngle, opacity: 1, zIndex: cardIdx + 1, ease: "none", scrollTrigger: stCfg }
           );
         }
 
-        // ── ENTER: next waiting card rises into rightmost slot ────────────
         const enterIdx  = step + VISIBLE;
         const enterCard = cardRefs.current[enterIdx];
         if (enterCard) {
@@ -266,19 +257,9 @@ export function ServiceCards() {
           const toPos     = arcPos(toAngle);
           const fromAngle = toAngle + FAN_DEG * 0.55;
           const fromPos   = arcPos(fromAngle);
-
           gsap.fromTo(enterCard,
             { x: fromPos.x, y: fromPos.y + 100, rotation: fromAngle, opacity: 0, scale: 0.9 },
-            {
-              x: toPos.x,
-              y: toPos.y,
-              rotation: toAngle,
-              opacity: 1,
-              scale: 1,
-              zIndex: enterIdx + 1,
-              ease: "none",
-              scrollTrigger: stCfg,
-            }
+            { x: toPos.x, y: toPos.y, rotation: toAngle, opacity: 1, scale: 1, zIndex: enterIdx + 1, ease: "none", scrollTrigger: stCfg }
           );
         }
       }
@@ -293,12 +274,49 @@ export function ServiceCards() {
       <div ref={stageRef} className="relative w-full overflow-hidden" style={{ height: "100svh" }}>
 
         {/* ── Section title ── */}
-        <div ref={titleRef} className="absolute top-8 left-0 right-0 z-50 text-center px-6 pointer-events-none select-none">
+        <div
+          ref={titleRef}
+          className="absolute top-8 left-0 right-0 z-50 text-center px-6 pointer-events-none select-none"
+        >
+          {/* Eyebrow — Playfair italic, matches HeroSection */}
           <p
-            className="text-3xl md:text-5xl font-semibold text-foreground leading-tight tracking-tight"
-            aria-label="Your complete partner for luxury yacht transformations and outstanding support"
+            style={{
+              fontFamily: playfair,
+              fontStyle: "italic",
+              fontWeight: 400,
+              fontSize: "0.8rem",
+              letterSpacing: "0.14em",
+              color: "hsl(var(--muted-foreground) / 0.45)",
+              marginBottom: "0.5rem",
+            }}
           >
-            {["Instent Mail Generation"].map((line, i) => (
+            <span className="inline-flex items-center gap-2">
+              <span
+                className="inline-block w-6 h-px"
+                style={{ background: "hsl(var(--foreground) / 0.25)" }}
+              />
+              AI-Powered
+              <span
+                className="inline-block w-6 h-px"
+                style={{ background: "hsl(var(--foreground) / 0.25)" }}
+              />
+            </span>
+          </p>
+
+          {/* Main title — Playfair, weight 500, matches h1/h2 pattern */}
+          <p
+            aria-label="Instant Mail Generation"
+            style={{
+              fontFamily: playfair,
+              fontWeight: 500,
+              fontStyle: "normal",
+              fontSize: "clamp(1.8rem, 4vw, 3.2rem)",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.05,
+              color: "hsl(var(--foreground))",
+            }}
+          >
+            {["Instant Mail Generation"].map((line, i) => (
               <span key={i} className="block overflow-hidden">
                 <span className="t-line block">{line}</span>
               </span>
@@ -308,7 +326,18 @@ export function ServiceCards() {
 
         {/* ── Scroll hint ── */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-1.5 pointer-events-none select-none opacity-60">
-          <span className="text-xs text-muted-foreground tracking-widest uppercase">Scroll</span>
+          <span
+            style={{
+              fontFamily: playfair,
+              fontStyle: "italic",
+              fontWeight: 400,
+              fontSize: "0.7rem",
+              letterSpacing: "0.18em",
+              color: "hsl(var(--muted-foreground))",
+            }}
+          >
+            Scroll
+          </span>
           <div className="w-px h-8 bg-muted-foreground/50 animate-pulse" />
         </div>
 
@@ -329,8 +358,10 @@ export function ServiceCards() {
                 style={{ textDecoration: "none" }}
               >
                 <CardTooltip tooltip={card.tooltip} />
+
                 {/* Scrim */}
                 <div className="absolute inset-0 bg-black/25 z-[1] transition-opacity duration-500 group-hover:bg-black/10" />
+
                 {/* Photo */}
                 <img
                   src={card.image}
@@ -338,9 +369,38 @@ export function ServiceCards() {
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
+
                 {/* Bottom bar */}
                 <div className="absolute bottom-0 left-0 right-0 z-[2] px-5 py-4 bg-gradient-to-t from-black/85 via-black/50 to-transparent">
-                  <h2 className="text-sm font-semibold text-white leading-snug">{card.title}</h2>
+                  {/* Card label — Playfair italic, small */}
+                  <p
+                    style={{
+                      fontFamily: playfair,
+                      fontStyle: "italic",
+                      fontWeight: 400,
+                      fontSize: "0.68rem",
+                      letterSpacing: "0.1em",
+                      color: "rgba(255,255,255,0.5)",
+                      marginBottom: "0.2rem",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {card.label}
+                  </p>
+                  {/* Card title — Playfair, medium weight */}
+                  <h2
+                    style={{
+                      fontFamily: playfair,
+                      fontStyle: "normal",
+                      fontWeight: 500,
+                      fontSize: "clamp(0.9rem, 1.5vw, 1.05rem)",
+                      letterSpacing: "-0.02em",
+                      lineHeight: 1.25,
+                      color: "#ffffff",
+                    }}
+                  >
+                    {card.title}
+                  </h2>
                 </div>
               </Link>
             </div>

@@ -924,7 +924,7 @@ function EmailSidebar({
                   className="block transition-all duration-300 ease-in-out"
                   style={{
                     fontFamily: "'Playfair Display', Georgia, serif",
-                    fontWeight: 600,
+                    fontWeight: 500,
                     fontSize:
                       item.isHovered || item.isOpen ? "1.3rem" : "1.05rem",
                     fontStyle:
@@ -1293,12 +1293,12 @@ export default function EmailGenerator() {
               <div>
                 <h1 className="text-3xl font-semibold text-foreground tracking-tight">
                   <span
-                    className="font-bold select-none"
+                    className="font-semi select-none"
                     style={{
                       fontFamily: "'Playfair Display', Georgia, serif",
                       fontStyle: "italic",
-                      fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
-                      letterSpacing: "-0.03em",
+                      fontSize: "clamp(1.4rem, 3vw, 2.2rem)",
+                      letterSpacing: "-0.02em",
                       color: "hsl(var(--foreground))",
                     }}
                   >
