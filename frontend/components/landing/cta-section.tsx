@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 import { AnimatedTetrahedron } from "./animated-tetrahedron";
+
+const playfair = "'Playfair Display', Georgia, serif";
 
 export function CtaSection() {
   const [isVisible, setIsVisible] = useState(false);
@@ -40,28 +40,89 @@ export function CtaSection() {
           onMouseMove={handleMouseMove}
         >
           {/* Spotlight effect */}
-          <div 
+          <div
             className="absolute inset-0 opacity-10 pointer-events-none transition-opacity duration-300"
             style={{
-              background: `radial-gradient(600px circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(0,0,0,0.15), transparent 40%)`
+              background: `radial-gradient(600px circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(0,0,0,0.15), transparent 40%)`,
             }}
           />
-          
+
           <div className="relative z-10 px-8 lg:px-16 py-16 lg:py-24">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
               {/* Left content */}
               <div className="flex-1">
-                <h2 className="text-4xl lg:text-7xl font-display tracking-tight mb-8 leading-[0.95]">
-                  Ready to write
-                  <br />
-                  something great?
-                </h2>
-
-                <p className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-xl">
-                  Join and start reading and sending email efficiently whith the help of single click.
+                {/* Eyebrow */}
+                <p
+                  className="mb-6 inline-flex items-center gap-3"
+                  style={{
+                    fontFamily: playfair,
+                    fontStyle: "italic",
+                    fontWeight: 400,
+                    fontSize: "0.875rem",
+                    letterSpacing: "0.12em",
+                    color: "hsl(var(--muted-foreground) / 0.55)",
+                  }}
+                >
+                  <span
+                    className="w-8 h-px"
+                    style={{ background: "hsl(var(--foreground) / 0.3)" }}
+                  />
+                  Get started
                 </p>
 
-                <p className="text-sm text-muted-foreground mt-8 font-mono">
+                {/* Heading */}
+                <h2
+                  className="mb-8"
+                  style={{
+                    fontFamily: playfair,
+                    fontWeight: 500,
+                    fontStyle: "normal",
+                    fontSize: "clamp(2.4rem, 7vw, 5.5rem)",
+                    letterSpacing: "-0.03em",
+                    lineHeight: 0.95,
+                    color: "hsl(var(--foreground))",
+                  }}
+                >
+                  Ready to write
+                  <br />
+                  <span
+                    style={{
+                      fontStyle: "italic",
+                      color: "hsl(var(--foreground))",
+                    }}
+                  >
+                    something great?
+                  </span>
+                </h2>
+
+                {/* Description */}
+                <p
+                  className="mb-12 max-w-xl"
+                  style={{
+                    fontFamily: playfair,
+                    fontStyle: "italic",
+                    fontWeight: 400,
+                    fontSize: "clamp(1rem, 1.8vw, 1.25rem)",
+                    color: "hsl(var(--muted-foreground) / 0.72)",
+                    lineHeight: 1.75,
+                    letterSpacing: "0.01em",
+                  }}
+                >
+                  Join and start reading and sending email efficiently with the
+                  help of a single click.
+                </p>
+
+                {/* Small note */}
+                <p
+                  style={{
+                    fontFamily: playfair,
+                    fontStyle: "italic",
+                    fontWeight: 400,
+                    fontSize: "0.9rem",
+                    color: "hsl(var(--muted-foreground) / 0.65)",
+                    letterSpacing: "0.04em",
+                  }}
+                >
                   Free to use.
                 </p>
               </div>

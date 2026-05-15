@@ -76,7 +76,7 @@ export function HeroSection() {
             }`}
             style={{
               fontFamily: "'Playfair Display', Georgia, serif",
-              fontWeight: 500,
+              fontWeight: 100,
               fontSize: "clamp(3rem, 12vw, 10rem)",
             }}
           >
